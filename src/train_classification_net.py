@@ -90,7 +90,7 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
             running_corrects = 0
 
             # 遍历数据
-            for data in dataloaders[phase]:
+            for bth_index, data in enumerate(dataloaders[phase]):
                 # 获取输入
                 inputs, labels = data
                 # print(inputs.size(), labels)
@@ -107,9 +107,10 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
 
                 # 正向传递
                 outputs = model(inputs)
-                print(outputs)
+                # print(outputs)
                 _, preds = torch.max(outputs.data, 1)
                 loss = criterion(outputs, labels)
+                # print(bth_index, loss)
 
                 # 如果是训练阶段, 向后传递和优化
                 if phase == 'train':
@@ -141,16 +142,27 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
     model.load_state_dict(best_model_wts)
     return model
 
-model_ft = models.resnet18(pretrained=Pretrained)
+class ClassificationModelResenet18(nn.Module):
+    def __init__(self, pretrained=False, NUM_CLASSES=190):
+        super(ClassificationModelResenet18, self).__init__()
+        resnet_model = models.resnet18(pretrained=Pretrained)
+        for name, module in list(resnet_model._modules.items())[:-2]:
+            self.add_module(name, module)
+        self.avgpool = nn.AdaptiveAvgPool2d(1)
+        self.fc = nn.Linear(512, NUM_CLASSES)
+
+    def forward(self, x):
+        for name, module in list(self._modules.items())[:-1]:
+            x = module(x)
+        x = x.view(x.size(0), -1) # 展平多维的卷积图进全连接
+        x = self.fc(x)
+        return x
+
+# model_ft = models.resnet18(pretrained=Pretrained)
 # model_ft = models.alexnet(pretrained=Pretrained)
 # model_ft = models.resnet34(pretrained=Pretrained)
+model_ft = ClassificationModelResenet18(pretrained=Pretrained, NUM_CLASSES=NUM_CLASSES)
 
-# print(model_ft)
-# exit()
-model_ft.avgpool = nn.AdaptiveAvgPool2d(1)
-num_ftrs = model_ft.fc.in_features
-
-model_ft.fc = nn.Linear(num_ftrs, NUM_CLASSES)
 
 if use_gpu:
     model_ft = model_ft.cuda()
