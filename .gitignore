@@ -2,3 +2,5 @@
 /data/DatasetA_train/
 /data/DatasetA_test/
 src/__pycache__/
+/src/runs/
+*.pkl
