@@ -8,6 +8,8 @@ from torch.optim import lr_scheduler
 import numpy as np
 
 
+writer = SummaryWriter()
+
 def train_model(model, criterion, optimizer, dataloaders, num_epochs=25, task="classification"):
 
     scheduler = lr_scheduler.StepLR(optimizer, step_size=num_epochs//4, gamma=0.1)
@@ -17,7 +19,6 @@ def train_model(model, criterion, optimizer, dataloaders, num_epochs=25, task="c
     if use_gpu:
         model = model.cuda()
 
-    writer = SummaryWriter()
 
     model_name = model.__class__.__name__
 
@@ -91,7 +92,6 @@ def train_model(model, criterion, optimizer, dataloaders, num_epochs=25, task="c
                         labels = labels.reshape_as(outputs)
 
                     loss = criterion(outputs, labels)
-                    print(bth_index, running_corrects)
 
                     # 如果是训练阶段, 向后传递和优化
                     if phase == 'train':
@@ -135,4 +135,5 @@ def train_model(model, criterion, optimizer, dataloaders, num_epochs=25, task="c
     # 加载最佳模型的权重
     model.load_state_dict(best_model_wts)
     torch.save(best_model_wts, "../models/{}.pkl".format(model_name))
+    writer.close()
     return model

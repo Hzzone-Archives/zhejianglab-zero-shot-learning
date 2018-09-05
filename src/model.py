@@ -14,6 +14,24 @@ class FeaturesNet(nn.Module):
             x = module(x)
         return x
 
+
+class ZSLNet(nn.Module):
+    def __init__(self, input_size, output_size):
+        super(ZSLNet, self).__init__()
+        self.transformer = nn.Sequential(*[
+            nn.Linear(input_size, 1024),
+            nn.ReLU(),
+            nn.Linear(1024, 1024),
+            nn.ReLU(),
+            nn.Linear(1024, output_size)
+        ])
+
+    def forward(self, x):
+        x = x.view(x.size(0), -1) # 展平多维的卷积图进全连接
+        x = self.transformer(x)
+        return x
+
+
 class DEMNet(nn.Module):
     def __init__(self, FeaturesNet, input_size, output_size):
         super(DEMNet, self).__init__()

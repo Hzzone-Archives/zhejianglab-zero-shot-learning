@@ -16,17 +16,19 @@ if __name__ == "__main__":
 
     root = "../data/DatasetA_train/"
 
-    dataloaders = getDataLoaders(root, BATCH_SIZE)
+    # dataloaders = getImageLoaders(root, BATCH_SIZE)
+    dataloaders = getVectorLoaders(root, BATCH_SIZE)
     model_ft = torch.load("resnet18.pkl", map_location='cpu')
     featuresModel = FeaturesNet(model_ft)
-    DEM_model = DEMNet(featuresModel, 512, 300)
+    # DEM_model = DEMNet(featuresModel, 512, 300)
+    ZSL_Net = ZSLNet(512, 300)
 
     # criterion = nn.CrossEntropyLoss()
     criterion = nn.MSELoss()
 
     # 如你所见, 所有参数都将被优化
-    optimizer_ft = optim.SGD(DEM_model.parameters(), lr=LR, momentum=0.9)
+    optimizer_ft = optim.SGD(ZSL_Net.parameters(), lr=LR, momentum=0.9)
 
-    model_ft = train_model(DEM_model, criterion, optimizer_ft, dataloaders,
+    model_ft = train_model(ZSL_Net, criterion, optimizer_ft, dataloaders,
                            num_epochs=EPOCH, task="wordembeddings")
 
