@@ -1,7 +1,7 @@
 import numpy as np
 import os
 import torch
-from src.model import *
+from model import *
 from torchvision import transforms
 from skimage import io, color
 
@@ -98,15 +98,15 @@ def output_results(model1, model2, data_root, save_path):
     with open(save_path, "w") as f:
         f.write(results)
 
-if __name__ == "__main__":
-
-    # model_ft = torch.load("resnet18.pkl", map_location='cpu')
-    # featuresModel = FeaturesNet(model_ft)
-    # output_features("../data/DatasetA_train/train", featuresModel)
-    model_ft = torch.load("resnet18.pkl", map_location='cpu')
-    featuresModel = FeaturesNet(model_ft)
-    # DEM_model = DEMNet(featuresModel, 512, 300)
-    ZSL_Net = ZSLNet(512, 300)
-    ZSL_Net.load_state_dict(torch.load("../models/ZSLNet.pkl"))
-    output_results(featuresModel, ZSL_Net, "../data/DatasetA_test/test", "submit.txt")
+# if __name__ == "__main__":
+#
+#     # model_ft = torch.load("resnet18.pkl", map_location='cpu')
+#     # featuresModel = FeaturesNet(model_ft)
+#     # output_features("../data/DatasetA_train/train", featuresModel)
+#     model_ft = torch.load("resnet18.pkl", map_location='cpu')
+#     featuresModel = FeaturesNet(model_ft)
+#     # DEM_model = DEMNet(featuresModel, 512, 300)
+#     ZSL_Net = ZSLNet(512, 300)
+#     ZSL_Net.load_state_dict(torch.load("../models/ZSLNet.pkl"))
+#     output_results(featuresModel, ZSL_Net, "../data/DatasetA_test/test", "submit.txt")
 

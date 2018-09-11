@@ -5,3 +5,6 @@ src/__pycache__/
 /src/runs/
 *.pkl
 /src/tmp/
+tmp
+/DatasetA/train/
+/DatasetA/test/

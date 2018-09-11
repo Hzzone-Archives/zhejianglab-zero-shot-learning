@@ -2,13 +2,12 @@ import torch
 import time
 import copy
 import sys
-from tensorboardX import SummaryWriter
 from torch.autograd import Variable
 from torch.optim import lr_scheduler
 import numpy as np
+from visdom import Visdom
 
 
-writer = SummaryWriter()
 
 def train_model(model, criterion, optimizer, dataloaders, num_epochs=25, task="classification"):
 
@@ -21,6 +20,35 @@ def train_model(model, criterion, optimizer, dataloaders, num_epochs=25, task="c
 
 
     model_name = model.__class__.__name__
+
+    viz = Visdom(env=model_name)
+    # loss_windows = {x: viz.line(
+    #     X=np.array([0, 0]),
+    #     Y=np.array([0, 0]),
+    #     opts=dict(
+    #         xtickmin=-2,
+    #         xtickmax=2,
+    #         xtickstep=1,
+    #         ytickmin=-1,
+    #         ytickmax=5,
+    #         ytickstep=1,
+    #         markersymbol='dot',
+    #         markersize=5,
+    #     ),
+    #     name='acc'
+    # ) for x in ['train', 'val']}
+    # [viz.line(
+    #     X=np.array([0, 0]),
+    #     Y=np.array([0, 0]),
+    #     opts=dict(markercolor=np.array([50]),
+    #              markersymbol='dot',),
+    #     ##选择之前的窗口win
+    #     win=loss_windows[x],
+    #     ##选择更新图像的方式,另外有"append"/"new"
+    #     update="apped",
+    #     ## 对当前的line新命名, 这个必须要
+    #     name="acc",) for x in ['train', 'val']]
+
 
     since = time.time()
 
@@ -53,11 +81,9 @@ def train_model(model, criterion, optimizer, dataloaders, num_epochs=25, task="c
                 for bth_index, data in enumerate(dataloaders[phase]):
                     # 获取输入
                     if task == "classification":
-                        inputs, labels, _, _ = data
-                    elif task == "attributes":
-                        inputs, true_labels, labels, _ = data
+                        inputs, labels, _ = data
                     else:
-                        inputs, true_labels, _, labels = data
+                        inputs, true_labels, labels = data
 
                     # inputs, labels = data
                     # print(inputs.size(), labels)
@@ -77,7 +103,7 @@ def train_model(model, criterion, optimizer, dataloaders, num_epochs=25, task="c
 
                     if task == "classification":
                         _, preds = torch.max(outputs.data, 1)
-                        running_corrects += torch.sum(preds == labels.data).numpy().cpu().numpy()
+                        running_corrects += torch.sum(preds == labels.data).cpu().numpy()
                     else:
                         outputs_numpy = outputs.cpu().data.numpy()
                         mul_value = np.dot(outputs_numpy, target.T)
@@ -104,14 +130,8 @@ def train_model(model, criterion, optimizer, dataloaders, num_epochs=25, task="c
                 epoch_loss = running_loss / len(dataloaders[phase].dataset)
                 epoch_acc = running_corrects.astype(np.float) / len(dataloaders[phase].dataset)
 
-                writer.add_scalars("loss", {
-                    "{}".format(phase): epoch_loss,
-                }, epoch)
-                writer.add_scalars("accuracy", {
-                    "{}".format(phase): epoch_acc,
-                }, epoch)
-                writer.add_scalar("lr", scheduler.get_lr()[0], epoch)
-
+                viz.line(X=torch.FloatTensor([epoch]), Y=epoch_loss, win='loss',
+                         update='append' if epoch > 0 else None)
                 print('{} Loss: {:.4f} Acc: {:.4f}'.format(
                     phase, epoch_loss, epoch_acc))
 
