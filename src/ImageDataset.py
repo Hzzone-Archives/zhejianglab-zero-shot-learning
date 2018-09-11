@@ -63,7 +63,7 @@ def getImageLoaders(root, BATCH_SIZE=120):
 
     data_transforms = getTransforms()
 
-    image_datasets = {x: ImageDataset(os.path.join(root, x), os.path.join(root, x+'.csv'), os.path.join(root, "attributes_per_class.csv"), transform=data_transforms[x])
+    image_datasets = {x: ImageDataset(os.path.join(root, 'train'), os.path.join(root, x+'.csv'), os.path.join(root, "attributes_per_class.csv"), transform=data_transforms[x])
                       for x in ['train', 'val']}
 
     dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=BATCH_SIZE,

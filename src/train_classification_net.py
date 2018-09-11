@@ -15,7 +15,7 @@ if __name__ == "__main__":
     '''
     Training Config
     '''
-    BATCH_SIZE = 50
+    BATCH_SIZE = 30
     LR = 0.001
     EPOCH = 100
     Pretrained = False
@@ -26,10 +26,11 @@ if __name__ == "__main__":
     dataloaders = getImageLoaders(root, BATCH_SIZE)
 
     # model_ft = ClassificationModelResenet18(pretrained=Pretrained, NUM_CLASSES=NUM_CLASSES)
-    # model_ft = models.inception_v3()
-    model_ft = models.resnet18()
-    num_ftrs = model_ft.fc.in_features
-    model_ft.fc = nn.Linear(num_ftrs, NUM_CLASSES)
+    model_ft = models.resnet152(num_classes=NUM_CLASSES)
+    # model_ft = models.inception_v3(num_classes=NUM_CLASSES)
+    # model_ft = models.resnet18()
+    # num_ftrs = model_ft.fc.in_features
+    # model_ft.fc = nn.Linear(num_ftrs, NUM_CLASSES)
 
     criterion = nn.CrossEntropyLoss()
 
